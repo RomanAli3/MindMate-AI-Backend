@@ -18,6 +18,9 @@ const userSchema=mongoose.Schema({
          type:String,
         required:[true,"name is required"],
     },
+    refreshToken:{
+        type:String
+    },
     password:{
         type:String,
         minlength:[8,"Password must be 8 characters"],
