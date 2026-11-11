@@ -4,5 +4,6 @@ const app=express()
 dotenve.config({
     path:"./.env"
 })
+app.use(cookieParser())
 
 export {app}

@@ -19,6 +19,26 @@ async function sendMail(to,sub,msg){
         html:msg
     })
 }
+const options={
+      httpOnly:true,
+    secure:false
+}
+
+const generateAccessAndRefreshToken=async(userId)=>{
+    try {
+        const user= await User.findById(userId)
+        if(!user){
+            throw new ApiError(400,"User not found")
+        }
+        const accessToken=user.generateAccessToken()
+        const refreshToken=user.generateRefreshToken()
+        user.refreshToken=refreshToken
+        await user.save({validateBeforeSave:false})
+        return {accessToken,refreshToken}
+    } catch (error) {
+        throw new ApiError(400,error)
+    }
+}
 
 const welcomeEmail = (name) => {
     return `
@@ -111,3 +131,37 @@ const registerUser=AsyncHandler(async(req,res)=>{
     return res.status(201)
     .json(new ApiResponse(201,createdUser,"User created successfully"))
 })
+
+const loginUser=AsyncHandler(async(req,res)=>{
+    const {userName,email,password}=req.body
+    if(!(userName||email)){
+        throw new ApiError(400,"Please enter username or email")
+    }
+    if(!password){
+        throw new ApiError(400,"Enter your password")
+    }
+    const existedUser=await User.findOne({
+        $or:[
+            {email},
+            {userName}
+        ]})
+        
+    if(!existedUser){
+        throw new ApiError(401,"User not found")
+    }
+    const passwordCheck=await existedUser.isPasswordCorrect(password)
+    if(!passwordCheck){
+        throw new ApiError(401,"Invalid password")
+    }
+   const {refreshToken,accessToken}= generateAccessAndRefreshToken(existedUser._id)
+   const logedInUser=await User.findById(existedUser._id).select("-password -refreshToken")
+   if(!logedInUser){
+    throw new ApiError(500,"User does not login ! try again")
+   }
+
+   return res.status(200)
+   .cookie("accessToken",accessToken,options)
+   .cookie("refreshToken",refreshToken,options)
+   .json(new ApiResponse(200,logedInUser,"User loged in successfully"))
+})
+
