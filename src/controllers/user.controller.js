@@ -100,7 +100,7 @@ const welcomeEmail = (name) => {
 
 const registerUser=AsyncHandler(async(req,res)=>{
     const {userName,email,password,name} =req.body
-    if(!userName.trim()||!email.trim()||!passsword.trim()||!name.trim()){
+    if(!userName.trim()||!email.trim()||!password.trim()||!name.trim()){
         throw new ApiError(400,"Please fill all fields")
     }
     const existedUser=await User.findOne({
@@ -153,7 +153,7 @@ const loginUser=AsyncHandler(async(req,res)=>{
     if(!passwordCheck){
         throw new ApiError(401,"Invalid password")
     }
-   const {refreshToken,accessToken}= generateAccessAndRefreshToken(existedUser._id)
+   const {refreshToken,accessToken}=await generateAccessAndRefreshToken(existedUser._id)
    const logedInUser=await User.findById(existedUser._id).select("-password -refreshToken")
    if(!logedInUser){
     throw new ApiError(500,"User does not login ! try again")
@@ -165,3 +165,42 @@ const loginUser=AsyncHandler(async(req,res)=>{
    .json(new ApiResponse(200,logedInUser,"User loged in successfully"))
 })
 
+const logoutUser=AsyncHandler(async(req,res)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset:{refreshToken:1}
+        },
+        {new:true}
+    )
+    return res.status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(new ApiResponse(200,{},"User logout successfully"))
+
+})
+
+const updatePassword=AsyncHandler(async(req,res)=>{
+    const {oldPassword,newPassword}=req.body
+    if(!oldPassword.trim()||!newPassword.trim()){
+        throw new ApiError(400,"All fields are required")
+    }
+    const user = await User.findById(req.user._id)
+    if(!user){
+        throw new ApiError(401,"User not found")
+    }
+    const verifyPassword =await user.isPasswordCorrect(oldPassword)
+    if(!verifyPassword){
+        throw new ApiError(401,"Invalid old password")
+    }
+    const updatedUser=await User.findByIdAndUpdate(
+        user._id,
+        {$set:{password:newPassword}},
+            { new: true }
+    ).select("-password -refreshToken")
+
+    res.status(200)
+    .json(new ApiResponse(200,updatedUser,"Password is updated"))
+})
+
+export {registerUser,loginUser,logoutUser,updatePassword}
