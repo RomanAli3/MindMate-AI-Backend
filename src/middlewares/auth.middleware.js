@@ -4,9 +4,7 @@ import { ApiError } from '../utils/apiErrorHandler.js'
 import  jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
-dotenv.config({
-    path:'./.env'
-})
+
 const verifyJwt =AsyncHandler(async(req,res,next)=>{
 
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")

@@ -3,17 +3,20 @@ import {AsyncHandler} from '../utils/asyncHandler.js'
 import {ApiError} from '../utils/apiErrorHandler.js'
 import {ApiResponse} from '../utils/apiResponseHandler.js'
 import nodemailer from "nodemailer"
-
+import dotenv from 'dotenv'
+dotenv.config();
 const transporter = nodemailer.createTransport({
   service:"gmail",
+ 
   auth: {
-    user: process.env.EMIAL_URI,
-    pass: process.env.EMIAL_URI_PASSWORD,
+    user: process.env.EMAIL_URI,
+    pass: process.env.EMAIL_URI_PASSWORD,
   },
 });
 
 async function sendMail(to,sub,msg){
     await transporter.sendMail({
+        from:process.env.EMAIL_URI,
         to:to,
         subject:sub,
         html:msg
