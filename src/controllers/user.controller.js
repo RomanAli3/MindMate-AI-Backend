@@ -196,6 +196,7 @@ const updatePassword=AsyncHandler(async(req,res)=>{
     if(!verifyPassword){
         throw new ApiError(401,"Invalid old password")
     }
+
     const updatedUser=await User.findByIdAndUpdate(
         user._id,
         {$set:{password:newPassword}},

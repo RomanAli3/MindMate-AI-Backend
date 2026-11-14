@@ -12,4 +12,6 @@ dotenve.config({
 app.use(cookieParser())
 import { router } from './routes/user.routes.js'
 app.use("/user",router)
+import {geminiRouter} from './routes/gemini.routes.js'
+app.use("/gemini",geminiRouter)
 export {app}
