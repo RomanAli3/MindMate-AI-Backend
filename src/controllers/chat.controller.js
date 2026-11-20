@@ -60,4 +60,13 @@ const generateMessage=AsyncHandler(async(req,res)=>{
     return res.status(200)
     .json(new ApiResponse(200,{history:History,Message:data},"AI replying.."))
 })
-export {generateMessage}
+
+const getConversetions=AsyncHandler(async(req,res)=>{
+    const Conversetions =await CoversetionHistory.find({}).toArray()
+    if(!Conversetions){
+        throw new ApiError(400,"Fail to fetch history")
+    }
+    return res.status(200)
+    .json(new ApiResponse(200,Conversetions,"All history fetched successfully"))
+})
+export {generateMessage,getConversetions}
