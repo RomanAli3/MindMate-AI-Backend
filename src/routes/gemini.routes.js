@@ -6,6 +6,6 @@ const geminiRouter =express.Router()
 
 geminiRouter.route("/chat").post(verifyJwt,generateMessage)
 geminiRouter.route("/get-history").get(verifyJwt,getConversetions)
-geminiRouter.route("/delete-history/:ConversetionId").get(verifyJwt,deleteConversetion)
+geminiRouter.route("/delete-history/:ConversetionId").delete(verifyJwt,deleteConversetion)
 
 export {geminiRouter} 
