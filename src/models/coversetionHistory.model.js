@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose'
+import {mongoose} from 'mongoose'
 
 const conversetionHistory=mongoose.Schema({
     title:{
@@ -16,4 +16,4 @@ const conversetionHistory=mongoose.Schema({
 }]
 },{timestamps:true})
 
-export const CoversetionHistory=mongoose.model("CoversetionHistory",conversetionHistory)
+export const ConversetionHistory=mongoose.model("ConversetionHistory",conversetionHistory)
