@@ -211,11 +211,11 @@ const deleteUser=AsyncHandler(async(req,res)=>{
    
    const user=await User.findByIdAndDelete(req.user._id).select("-password -refreshToken")
     if(!user){
-        throw new ApiError(500,"User not found ")
-    }
+        throw new ApiError(500,"User not found ")}
     res.status(200)
      .clearCookie("accessToken",options)
     .clearCookie("refreshToken",options)
     .json(new ApiResponse( 200, user,"User deleted successfully"))
 })
+
 export {registerUser,loginUser,deleteUser,logoutUser,updatePassword}
