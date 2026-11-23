@@ -5,7 +5,9 @@ import { ApiResponse } from "../utils/apiResponseHandler.js";
 import { Chat } from "../models/chat.model.js";
 import { ConversetionHistory } from "../models/coversetionHistory.model.js";
 import { User } from "../models/user.model.js";
-const client = new GoogleGenAI({});
+const client = new GoogleGenAI({ apiVersion: 'v1beta',});
+import fs from 'fs'
+
 
 const generateMessage=AsyncHandler(async(req,res)=>{
     const {prompt,HistoryId} = req.body
@@ -27,6 +29,7 @@ const generateMessage=AsyncHandler(async(req,res)=>{
     const interaction = await client.interactions.create({
       model: "gemini-3.5-flash-lite",
       input: allConversetionHistory,
+       tools: [{"type": "google_search"}],
       system_instruction: "Your name is MindMate AI and developed by roman.",
      generation_config: {
         thinking_level: "low"
@@ -103,4 +106,22 @@ const deleteConversetion=AsyncHandler(async(req,res)=>{
     res.status(200)
     .json(new ApiResponse(200,[],"Conversetion deleted successfully"))
 })
-export {generateMessage,getConversetions,deleteConversetion}
+
+const createImage=AsyncHandler(async(req,res)=>{
+
+    const {prompt}=req.body
+    const interaction = await client.interactions.create({
+    model: "gemini-nano-banana-2.1",
+    input: 
+      { type: "text", text:  prompt}
+  });
+  const generatedImage = interaction.output_image;
+  if (generatedImage) {
+    if (generatedImage && generatedImage.data) {
+    const buffer = Buffer.from(generatedImage.data, "base64");
+    fs.writeFileSync("gemini-native-image.png", buffer);
+  }
+    console.log("Image saved as gemini-native-image.png");
+  }
+})
+export {generateMessage,getConversetions,deleteConversetion,createImage}
