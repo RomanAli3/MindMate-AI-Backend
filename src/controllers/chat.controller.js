@@ -116,7 +116,7 @@ const getConversetionById=AsyncHandler(async(req,res)=>{
     const conversetion=await ConversetionHistory.findOne({
        _id:conversetionId,
        user:req.user._id
-    })
+    }).populate("chat")
     if(!conversetion){
         throw new ApiError(400,"Conversetion not found")
     }
