@@ -125,4 +125,30 @@ const getConversetionById=AsyncHandler(async(req,res)=>{
     .json(new ApiResponse(200,conversetion,"Conversetion fetched successfully"))
 })
 
-export {generateMessage,getConversetions,deleteConversetion,getConversetionById}
+const updateConversetionName=AsyncHandler(async(req,res)=>{
+    const {conversetionId}=req.params
+    const {newTitle}=req.body
+    if(!conversetionId.trim()){
+        throw new ApiError(400,"Conversetion id not found")
+    }
+    if(!newTitle.trim()){
+        throw new ApiError(400,"Enter new title")
+
+    }
+    const conversetion = await ConversetionHistory.findById(conversetionId)
+    if(!conversetion){
+        throw new ApiError(400,"Conversetion not found")
+    }
+    if(!conversetion.user==req.user._id){
+        throw new ApiError(400,"unAuthorized user")
+    }
+    const updatedConversetion=await ConversetionHistory.findByIdAndUpdate(
+        conversetionId,
+        {title:newTitle},
+        {new:true}
+    )
+    return res.status(200)
+    .json(new ApiResponse(200,updatedConversetion,"Title updated successfully updated"))
+})
+
+export {generateMessage,getConversetions,updateConversetionName,deleteConversetion,getConversetionById}
